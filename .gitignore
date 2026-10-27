@@ -1,0 +1,19 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.db
+*.db-shm
+*.db-wal
+
+# Node / Frontend
+node_modules/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log

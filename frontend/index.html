@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comic Store - TH02</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; }
+    header { background: #333; color: white; padding: 12px 20px; }
+    header h1 { font-size: 1.3rem; font-weight: bold; }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    .card { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 16px; margin-bottom: 16px; }
+    h2 { font-size: 1rem; margin-bottom: 12px; border-bottom: 1px solid #ccc; padding-bottom: 6px; }
+    .form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    input, textarea { padding: 6px 10px; border: 1px solid #bbb; border-radius: 3px; font-size: 0.9rem; }
+    input { flex: 1; min-width: 130px; }
+    textarea { width: 100%; height: 60px; resize: vertical; }
+    .btn { padding: 6px 14px; border: 1px solid #999; border-radius: 3px; cursor: pointer; font-size: 0.85rem; background: #eee; }
+    .btn:hover { background: #ddd; }
+    .btn-primary { background: #333; color: white; border-color: #333; }
+    .btn-primary:hover { background: #555; }
+    .btn-danger { background: #c00; color: white; border-color: #c00; }
+    .btn-danger:hover { background: #e00; }
+    .btn-warning { background: #e67e00; color: white; border-color: #e67e00; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: #333; color: white; padding: 7px 8px; text-align: left; }
+    td { padding: 6px 8px; border-bottom: 1px solid #eee; }
+    .tabs { display: flex; margin-bottom: 16px; border-bottom: 2px solid #333; }
+    .tab { padding: 8px 18px; cursor: pointer; font-size: 0.9rem; border: 1px solid #ccc; border-bottom: none; margin-right: 2px; background: #eee; }
+    .tab.active { background: #333; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .thong-bao { padding: 8px 12px; border-radius: 3px; margin-bottom: 10px; font-size: 0.85rem; display: none; }
+    .thong-bao.ok { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+    .thong-bao.loi { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+    pre { background: #f8f8f8; padding: 12px; border-radius: 3px; font-size: 0.8rem; white-space: pre-wrap; border: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Comic Store - Thuc hanh 02 (ASP.NET Core + Axios)</h1>
+</header>
+
+<div class="container">
+  <div id="thong-bao" class="thong-bao"></div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="chuyenTab('comics')">Quan ly truyen</div>
+    <div class="tab" onclick="chuyenTab('don-hang')">Don hang</div>
+    <div class="tab" onclick="chuyenTab('huong-dan')">Huong dan</div>
+  </div>
+
+  <!-- Tab: Truyen -->
+  <div id="tab-comics" class="tab-content active">
+    <div class="card">
+      <h2 id="tieu-de-form">Them truyen moi</h2>
+      <input type="hidden" id="comic-id" />
+      <div class="form-row">
+        <input id="f-ten" placeholder="Ten truyen (bat buoc)" />
+        <input id="f-tacgia" placeholder="Tac gia (bat buoc)" />
+        <input id="f-theloai" placeholder="The loai" />
+      </div>
+      <div class="form-row">
+        <input id="f-gia" type="number" placeholder="Gia (VND)" />
+        <input id="f-tonkho" type="number" placeholder="So luong ton kho" />
+      </div>
+      <textarea id="f-mota" placeholder="Mo ta"></textarea>
+      <div style="margin-top:10px; display:flex; gap:8px;">
+        <button class="btn btn-primary" onclick="luuComic()">Luu</button>
+        <button class="btn" onclick="xoaForm()">Dat lai</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <h2 style="margin:0;border:none;padding:0;">Danh sach truyen</h2>
+        <button class="btn" onclick="taiDanhSachComic()">Tai lai (GET)</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Ten truyen</th>
+              <th>Tac gia</th>
+              <th>The loai</th>
+              <th>Gia</th>
+              <th>Ton kho</th>
+              <th>Thao tac</th>
+            </tr>
+          </thead>
+          <tbody id="ds-comics"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Don hang -->
+  <div id="tab-don-hang" class="tab-content">
+    <div class="card">
+      <h2>Tao don hang moi</h2>
+      <div class="form-row">
+        <input id="o-ten" placeholder="Ten khach hang" />
+        <input id="o-email" type="email" placeholder="Email khach hang" />
+      </div>
+      <div class="form-row">
+        <input id="o-comic-id" type="number" placeholder="ID truyen" />
+        <input id="o-soluong" type="number" placeholder="So luong" value="1" />
+        <input id="o-dongia" type="number" placeholder="Don gia" />
+      </div>
+      <button class="btn btn-primary" onclick="taodonHang()">Dat hang (POST)</button>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <h2 style="margin:0;border:none;padding:0;">Danh sach don hang</h2>
+        <button class="btn" onclick="taiDanhSachDon()">Tai lai (GET)</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Khach hang</th>
+              <th>Email</th>
+              <th>Tong tien</th>
+              <th>Trang thai</th>
+              <th>Thao tac</th>
+            </tr>
+          </thead>
+          <tbody id="ds-don-hang"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Huong dan -->
+  <div id="tab-huong-dan" class="tab-content">
+    <div class="card">
+      <h2>Huong dan cai dat va chay du an</h2>
+      <pre>
+== BACKEND (ASP.NET Core) ==
+
+Yeu cau: Cai .NET 8 SDK
+Tai tai: https://dotnet.microsoft.com/download
+
+1. Mo terminal, vao thu muc backend:
+   cd backend/ComicStore.API
+
+2. Restore cac thu vien:
+   dotnet restore
+
+3. Cai EF Core CLI tools (chi can cai 1 lan):
+   dotnet tool install --global dotnet-ef
+
+4. Tao migration lan dau:
+   dotnet ef migrations add InitialCreate
+
+5. Tao database va ap dung migration:
+   dotnet ef database update
+
+6. Chay server:
+   dotnet run
+   -> API chay tai: http://localhost:5000
+   -> Swagger UI:   http://localhost:5000/swagger
+
+== FRONTEND ==
+Mo file frontend/index.html bang trinh duyet
+(hoac dung Live Server trong VS Code)
+
+== CAC ENDPOINT API ==
+
+Truyen (Comics):
+  GET    /api/comics        - Lay tat ca truyen
+  GET    /api/comics/{id}   - Lay truyen theo ID
+  POST   /api/comics        - Them truyen moi
+  PUT    /api/comics/{id}   - Cap nhat truyen
+  DELETE /api/comics/{id}   - Xoa truyen
+
+Don hang (Orders):
+  GET    /api/orders        - Lay tat ca don
+  GET    /api/orders/{id}   - Lay don theo ID
+  POST   /api/orders        - Tao don moi
+  PUT    /api/orders/{id}   - Cap nhat don
+  DELETE /api/orders/{id}   - Xoa don
+
+== KET NOI DATABASE ==
+- Chinh sua connection string trong backend/ComicStore.API/appsettings.json
+- Mac dinh dung SQLite (file comicstore.db)
+- Co the doi sang SQL Server bang cach chinh sua Program.cs
+      </pre>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
